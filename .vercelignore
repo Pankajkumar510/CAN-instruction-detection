@@ -1,0 +1,30 @@
+# Vercel only needs the frontend static files
+# Ignore all backend/Python files
+
+# Python backend — handled by Render, not Vercel
+server.py
+api/
+predict.py
+1.py
+requirements.txt
+artifacts/
+
+# Large data files
+DoS_dataset.csv
+Fuzzy_dataset.csv
+gear_dataset.csv
+RPM_dataset.csv
+normal_run_data.txt
+predictions_sample.csv
+
+# Python environment
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+
+# OS / IDE
+.vscode/
+.idea/
+*.DS_Store
+Thumbs.db
