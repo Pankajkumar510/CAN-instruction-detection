@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TinyCNNCANNet — Lightweight CNN for CAN Intrusion Detection</title>
+  <meta name="description" content="A research showcase for TinyCNNCANNet: ultra-lightweight (~13K parameters) CNN architectures for real-time CAN bus intrusion detection in autonomous vehicles." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ═══════════════ NAV ═══════════════ -->
+  <nav id="navbar" class="navbar">
+    <div class="nav-inner">
+      <div class="nav-logo">
+        <span class="logo-icon">⬡</span>
+        <span class="logo-text">TinyCNN<span class="accent">CAN</span>Net</span>
+      </div>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="#abstract" class="nav-link">Abstract</a></li>
+        <li><a href="#architecture" class="nav-link">Architecture</a></li>
+        <li><a href="#dataset" class="nav-link">Dataset</a></li>
+        <li><a href="#results" class="nav-link">Results</a></li>
+        <li><a href="#demo" class="nav-link">Live Demo</a></li>
+      </ul>
+      <a href="#demo" class="nav-cta" id="navCta">Try Demo</a>
+      <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ═══════════════ HERO ═══════════════ -->
+  <section class="hero" id="hero">
+    <canvas id="particleCanvas"></canvas>
+    <div class="hero-grid"></div>
+
+    <div class="hero-content">
+      <div class="hero-badge" id="heroBadge">
+        <span class="badge-dot"></span>
+        IEEE Research 2025 · CAN Bus Security
+      </div>
+
+      <h1 class="hero-title" id="heroTitle">
+        <span class="title-line">Lightweight CNN</span>
+        <span class="title-line gradient-text">CAN Intrusion</span>
+        <span class="title-line">Detection</span>
+      </h1>
+
+      <p class="hero-subtitle" id="heroSubtitle">
+        Three ultra-efficient CNN architectures — led by <strong>TinyCNNCANNet</strong> (~13K parameters) — achieving state-of-the-art accuracy on CAN bus attack detection across four diverse datasets including our new <em>SynCAN2025</em> benchmark.
+      </p>
+
+      <div class="hero-stats" id="heroStats">
+        <div class="stat-card">
+          <span class="stat-num counter" data-target="13">0</span><span class="stat-unit">K</span>
+          <span class="stat-label">Parameters</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-card">
+          <span class="stat-num counter" data-target="4">0</span>
+          <span class="stat-label">Datasets Evaluated</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-card">
+          <span class="stat-num counter" data-target="99">0</span><span class="stat-unit">%+</span>
+          <span class="stat-label">Detection Rate</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-card">
+          <span class="stat-num counter" data-target="5">0</span>
+          <span class="stat-label">Attack Classes</span>
+        </div>
+      </div>
+
+      <div class="hero-actions">
+        <a href="#results" class="btn-primary" id="heroCta1">
+          <span>View Results</span>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+        <a href="#demo" class="btn-secondary" id="heroCta2">Live Demo</a>
+      </div>
+    </div>
+
+    <div class="hero-visual">
+      <div class="can-network" id="canNetwork">
+        <svg class="network-svg" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+          <!-- Central node -->
+          <circle cx="200" cy="200" r="28" fill="rgba(0,245,255,0.15)" stroke="#00f5ff" stroke-width="2" class="pulse-ring"/>
+          <circle cx="200" cy="200" r="16" fill="#00f5ff" opacity="0.9"/>
+
+          <!-- Orbiting ECU nodes -->
+          <circle cx="200" cy="80"  r="12" fill="#7c3aed" opacity="0.9" class="ecu-node"/>
+          <circle cx="310" cy="155" r="12" fill="#7c3aed" opacity="0.9" class="ecu-node"/>
+          <circle cx="310" cy="245" r="12" fill="#7c3aed" opacity="0.9" class="ecu-node"/>
+          <circle cx="200" cy="320" r="12" fill="#7c3aed" opacity="0.9" class="ecu-node"/>
+          <circle cx="90"  cy="245" r="12" fill="#7c3aed" opacity="0.9" class="ecu-node"/>
+          <circle cx="90"  cy="155" r="12" fill="#7c3aed" opacity="0.9" class="ecu-node"/>
+
+          <!-- Connecting lines -->
+          <line x1="200" y1="200" x2="200" y2="80"  stroke="#00f5ff" stroke-width="1.5" stroke-dasharray="4,3" class="data-line" style="--delay:0s"/>
+          <line x1="200" y1="200" x2="310" y2="155" stroke="#00f5ff" stroke-width="1.5" stroke-dasharray="4,3" class="data-line" style="--delay:0.2s"/>
+          <line x1="200" y1="200" x2="310" y2="245" stroke="#00f5ff" stroke-width="1.5" stroke-dasharray="4,3" class="data-line" style="--delay:0.4s"/>
+          <line x1="200" y1="200" x2="200" y2="320" stroke="#00f5ff" stroke-width="1.5" stroke-dasharray="4,3" class="data-line" style="--delay:0.6s"/>
+          <line x1="200" y1="200" x2="90"  y2="245" stroke="#00f5ff" stroke-width="1.5" stroke-dasharray="4,3" class="data-line" style="--delay:0.8s"/>
+          <line x1="200" y1="200" x2="90"  y2="155" stroke="#00f5ff" stroke-width="1.5" stroke-dasharray="4,3" class="data-line" style="--delay:1.0s"/>
+
+          <!-- Outer ring -->
+          <circle cx="200" cy="200" r="140" fill="none" stroke="rgba(124,58,237,0.25)" stroke-width="1" stroke-dasharray="8,6"/>
+
+          <!-- Attack indicator -->
+          <circle cx="310" cy="155" r="20" fill="none" stroke="#ef4444" stroke-width="2" opacity="0" class="attack-ring"/>
+
+          <!-- Labels -->
+          <text x="200" y="55"  text-anchor="middle" fill="#a78bfa" font-size="9" font-family="JetBrains Mono">ENGINE ECU</text>
+          <text x="350" y="158" text-anchor="start"  fill="#a78bfa" font-size="9" font-family="JetBrains Mono">BRAKE</text>
+          <text x="350" y="248" text-anchor="start"  fill="#a78bfa" font-size="9" font-family="JetBrains Mono">AIRBAG</text>
+          <text x="200" y="350" text-anchor="middle" fill="#a78bfa" font-size="9" font-family="JetBrains Mono">TRANSMISSION</text>
+          <text x="50"  y="248" text-anchor="end"   fill="#a78bfa" font-size="9" font-family="JetBrains Mono">BODY CTRL</text>
+          <text x="50"  y="158" text-anchor="end"   fill="#a78bfa" font-size="9" font-family="JetBrains Mono">CLUSTER</text>
+
+          <text x="200" y="205" text-anchor="middle" fill="#0a0e1a" font-size="8" font-family="JetBrains Mono" font-weight="700">IDS</text>
+        </svg>
+        <div class="network-label">Real-time CAN Bus IDS</div>
+      </div>
+    </div>
+
+    <div class="scroll-hint">
+      <span>Scroll to explore</span>
+      <div class="scroll-arrow"></div>
+    </div>
+  </section>
+
+  <!-- ═══════════════ ABSTRACT ═══════════════ -->
+  <section class="section" id="abstract">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-tag">01 · Abstract</span>
+        <h2>Why CAN Bus Security Matters</h2>
+        <p>Modern vehicles contain 70+ ECUs communicating over Controller Area Network (CAN) — a protocol designed without authentication. We address this glaring attack surface.</p>
+      </div>
+
+      <div class="abstract-grid">
+        <div class="abstract-card card-glow" id="absCard1">
+          <div class="card-icon threat-icon">⚠</div>
+          <h3>The Threat Landscape</h3>
+          <p>CAN bus lacks authentication mechanisms, making every connected vehicle susceptible to <strong>DoS, Fuzzy, Replay, and Spoofing</strong> attacks. A compromised ECU can seize steering, brakes, or engine control with potentially fatal consequences.</p>
+        </div>
+        <div class="abstract-card card-glow" id="absCard2">
+          <div class="card-icon solution-icon">⬡</div>
+          <h3>Our Contribution</h3>
+          <p>We propose <strong>TinyCNNCANNet</strong> — a family of three lightweight 1D-CNN architectures optimized for edge deployment. With only <strong>~13K parameters</strong>, they run inference in microseconds on resource-constrained ECU hardware.</p>
+        </div>
+        <div class="abstract-card card-glow" id="absCard3">
+          <div class="card-icon dataset-icon">◎</div>
+          <h3>SynCAN2025 Dataset</h3>
+          <p>We introduce <strong>SynCAN2025</strong> — a new synthetic CAN intrusion detection benchmark generated via realistic vehicle simulation with controlled attack injection, enabling rigorous generalization evaluation across attack scenarios.</p>
+        </div>
+      </div>
+
+      <div class="contribution-list">
+        <h3 class="contrib-title">Key Contributions</h3>
+        <div class="contrib-items">
+          <div class="contrib-item" id="contrib1">
+            <span class="contrib-num">①</span>
+            <div>
+              <strong>Three Lightweight CNN Architectures</strong>
+              <p>TinyCNNCANNet with ~13K parameters and two efficient baseline models, all achieving competitive detection accuracy.</p>
+            </div>
+          </div>
+          <div class="contrib-item" id="contrib2">
+            <span class="contrib-num">②</span>
+            <div>
+              <strong>SynCAN2025 Benchmark</strong>
+              <p>A new synthetic CAN intrusion detection dataset generated through realistic simulation and controlled attack injection.</p>
+            </div>
+          </div>
+          <div class="contrib-item" id="contrib3">
+            <span class="contrib-num">③</span>
+            <div>
+              <strong>Extensive Multi-Dataset Evaluation</strong>
+              <p>Experiments on four diverse datasets analyzing detection performance, computational efficiency, and attack scenario coverage.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════ ARCHITECTURE ═══════════════ -->
+  <section class="section section-dark" id="architecture">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-tag">02 · Architecture</span>
+        <h2>TinyCNNCANNet Design</h2>
+        <p>Three model variants built for real-time edge inference — from ultralight to balanced accuracy-efficiency tradeoff.</p>
+      </div>
+
+      <div class="arch-tabs" id="archTabs">
+        <button class="arch-tab active" data-tab="tiny" id="tabTiny">TinyCNNCANNet</button>
+        <button class="arch-tab" data-tab="micro" id="tabMicro">MicroCNNCANNet</button>
+        <button class="arch-tab" data-tab="slim" id="tabSlim">SlimCNNCANNet</button>
+      </div>
+
+      <div class="arch-content">
+        <div class="arch-panel" id="panelTiny" data-panel="tiny">
+          <div class="arch-diagram">
+            <div class="layer-flow">
+              <div class="layer-block input-layer">
+                <div class="lb-inner">
+                  <span class="lb-label">Input</span>
+                  <span class="lb-dim">1×11</span>
+                </div>
+              </div>
+              <div class="layer-arrow">→</div>
+              <div class="layer-block conv-layer">
+                <div class="lb-inner">
+                  <span class="lb-label">Conv1D</span>
+                  <span class="lb-dim">32 filters</span>
+                </div>
+              </div>
+              <div class="layer-arrow">→</div>
+              <div class="layer-block pool-layer">
+                <div class="lb-inner">
+                  <span class="lb-label">MaxPool</span>
+                  <span class="lb-dim">k=2</span>
+                </div>
+              </div>
+              <div class="layer-arrow">→</div>
+              <div class="layer-block conv-layer">
+                <div class="lb-inner">
+                  <span class="lb-label">Conv1D</span>
+                  <span class="lb-dim">16 filters</span>
+                </div>
+              </div>
+              <div class="layer-arrow">→</div>
+              <div class="layer-block dense-layer">
+                <div class="lb-inner">
+                  <span class="lb-label">Dense</span>
+                  <span class="lb-dim">64</span>
+                </div>
+              </div>
+              <div class="layer-arrow">→</div>
+              <div class="layer-block output-layer">
+                <div class="lb-inner">
+                  <span class="lb-label">Softmax</span>
+                  <span class="lb-dim">5 classes</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="arch-specs">
+            <div class="spec-row"><span>Total Parameters</span><strong class="accent-text">~13,000</strong></div>
+            <div class="spec-row"><span>Inference Time</span><strong class="accent-text">&lt; 0.5 ms</strong></div>
+            <div class="spec-row"><span>Model Size</span><strong class="accent-text">~52 KB</strong></div>
+            <div class="spec-row"><span>Activation</span><strong class="accent-text">ReLU</strong></div>
+            <div class="spec-row"><span>Regularization</span><strong class="accent-text">Dropout 0.3</strong></div>
+          </div>
+        </div>
+
+        <div class="arch-panel hidden" id="panelMicro" data-panel="micro">
+          <div class="arch-diagram">
+            <div class="layer-flow">
+              <div class="layer-block input-layer">
+                <div class="lb-inner"><span class="lb-label">Input</span><span class="lb-dim">1×11</span></div>
+              </div>
+              <div class="layer-arrow">→</div>
+              <div class="layer-block conv-layer">
+                <div class="lb-inner"><span class="lb-label">Conv1D</span><span class="lb-dim">16 filters</span></div>
+              </div>
+              <div class="layer-arrow">→</div>
+              <div class="layer-block pool-layer">
+                <div class="lb-inner"><span class="lb-label">AvgPool</span><span class="lb-dim">k=2</span></div>
+              </div>
+              <div class="layer-arrow">→</div>
+              <div class="layer-block dense-layer">
+                <div class="lb-inner"><span class="lb-label">Dense</span><span class="lb-dim">32</span></div>
+              </div>
+              <div class="layer-arrow">→</div>
+              <div class="layer-block output-layer">
+                <div class="lb-inner"><span class="lb-label">Softmax</span><span class="lb-dim">5 classes</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="arch-specs">
+            <div class="spec-row"><span>Total Parameters</span><strong class="accent-text">~5,500</strong></div>
+            <div class="spec-row"><span>Inference Time</span><strong class="accent-text">&lt; 0.2 ms</strong></div>
+            <div class="spec-row"><span>Model Size</span><strong class="accent-text">~22 KB</strong></div>
+            <div class="spec-row"><span>Activation</span><strong class="accent-text">ReLU</strong></div>
+            <div class="spec-row"><span>Regularization</span><strong class="accent-text">Dropout 0.2</strong></div>
+          </div>
+        </div>
+
+        <div class="arch-panel hidden" id="panelSlim" data-panel="slim">
+          <div class="arch-diagram">
+            <div class="layer-flow">
+              <div class="layer-block input-layer">
+                <div class="lb-inner"><span class="lb-label">Input</span><span class="lb-dim">1×11</span></div>
+              </div>
+              <div class="layer-arrow">→</div>
+              <div class="layer-block conv-layer">
+                <div class="lb-inner"><span class="lb-label">Conv1D</span><span class="lb-dim">32 filters</span></div>
+              </div>
+              <div class="layer-arrow">→</div>
+              <div class="layer-block conv-layer">
+                <div class="lb-inner"><span class="lb-label">Conv1D</span><span class="lb-dim">64 filters</span></div>
+              </div>
+              <div class="layer-arrow">→</div>
+              <div class="layer-block pool-layer">
+                <div class="lb-inner"><span class="lb-label">GlobalPool</span><span class="lb-dim">avg</span></div>
+              </div>
+              <div class="layer-arrow">→</div>
+              <div class="layer-block dense-layer">
+                <div class="lb-inner"><span class="lb-label">Dense</span><span class="lb-dim">64</span></div>
+              </div>
+              <div class="layer-arrow">→</div>
+              <div class="layer-block output-layer">
+                <div class="lb-inner"><span class="lb-label">Softmax</span><span class="lb-dim">5 classes</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="arch-specs">
+            <div class="spec-row"><span>Total Parameters</span><strong class="accent-text">~28,000</strong></div>
+            <div class="spec-row"><span>Inference Time</span><strong class="accent-text">&lt; 0.8 ms</strong></div>
+            <div class="spec-row"><span>Model Size</span><strong class="accent-text">~112 KB</strong></div>
+            <div class="spec-row"><span>Activation</span><strong class="accent-text">ReLU</strong></div>
+            <div class="spec-row"><span>Regularization</span><strong class="accent-text">BatchNorm + Dropout</strong></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Feature pipeline -->
+      <div class="pipeline-viz">
+        <h3 class="pipeline-title">CAN Frame Feature Pipeline</h3>
+        <div class="pipeline-steps">
+          <div class="pipe-step" id="pipe1">
+            <div class="pipe-icon">📡</div>
+            <span>Raw CAN Frame</span>
+            <small>ID + DLC + D0-D7</small>
+          </div>
+          <div class="pipe-arrow">⟶</div>
+          <div class="pipe-step" id="pipe2">
+            <div class="pipe-icon">⚙</div>
+            <span>Feature Extraction</span>
+            <small>time_diff, byte_sum, byte_std, byte_change, burst…</small>
+          </div>
+          <div class="pipe-arrow">⟶</div>
+          <div class="pipe-step" id="pipe3">
+            <div class="pipe-icon">⬛</div>
+            <span>Normalization</span>
+            <small>StandardScaler</small>
+          </div>
+          <div class="pipe-arrow">⟶</div>
+          <div class="pipe-step" id="pipe4">
+            <div class="pipe-icon">🧠</div>
+            <span>CNN Inference</span>
+            <small>TinyCNNCANNet</small>
+          </div>
+          <div class="pipe-arrow">⟶</div>
+          <div class="pipe-step" id="pipe5">
+            <div class="pipe-icon">🔔</div>
+            <span>Alert / Class</span>
+            <small>Normal · DoS · Fuzzy · Replay · RPM</small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════ DATASET ═══════════════ -->
+  <section class="section" id="dataset">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-tag">03 · Dataset</span>
+        <h2>Multi-Dataset Evaluation Suite</h2>
+        <p>Evaluated on four diverse CAN bus datasets — including our new SynCAN2025 benchmark — to ensure generalization across real and simulated environments.</p>
+      </div>
+
+      <div class="dataset-grid">
+        <div class="dataset-card" id="ds1">
+          <div class="ds-header">
+            <span class="ds-badge real">Real-World</span>
+            <span class="ds-year">OTIDS / HCRL</span>
+          </div>
+          <h3>OTIDS Dataset</h3>
+          <p>In-vehicle CAN intrusion dataset from Hyundai Sonata with DoS, Fuzzy, and RPM spoofing attacks recorded on a real vehicle.</p>
+          <div class="ds-stats">
+            <div class="ds-stat"><span class="ds-num">4</span><span>Attack Types</span></div>
+            <div class="ds-stat"><span class="ds-num">1M+</span><span>CAN Frames</span></div>
+          </div>
+          <div class="ds-attacks">
+            <span class="attack-tag">DoS</span>
+            <span class="attack-tag">Fuzzy</span>
+            <span class="attack-tag">Gear</span>
+            <span class="attack-tag">RPM</span>
+          </div>
+        </div>
+
+        <div class="dataset-card" id="ds2">
+          <div class="ds-header">
+            <span class="ds-badge synth">Synthetic</span>
+            <span class="ds-year">NEW 2025</span>
+          </div>
+          <h3>SynCAN2025</h3>
+          <p>Our new synthetic benchmark generated via high-fidelity vehicle simulation with precisely controlled attack injection timing and intensity levels.</p>
+          <div class="ds-stats">
+            <div class="ds-stat"><span class="ds-num">5</span><span>Attack Types</span></div>
+            <div class="ds-stat"><span class="ds-num">500K+</span><span>Labeled Frames</span></div>
+          </div>
+          <div class="ds-attacks">
+            <span class="attack-tag new-tag">Replay</span>
+            <span class="attack-tag new-tag">Spoofing</span>
+            <span class="attack-tag new-tag">Flood</span>
+            <span class="attack-tag new-tag">Suspend</span>
+            <span class="attack-tag new-tag">Fuzzy</span>
+          </div>
+        </div>
+
+        <div class="dataset-card" id="ds3">
+          <div class="ds-header">
+            <span class="ds-badge real">Real-World</span>
+            <span class="ds-year">ROAD 2022</span>
+          </div>
+          <h3>ROAD Dataset</h3>
+          <p>Real ORNL Automotive Dynamometer dataset: correlated signal and fabrication attacks on a real vehicle captured with fine-grained timing.</p>
+          <div class="ds-stats">
+            <div class="ds-stat"><span class="ds-num">3</span><span>Attack Types</span></div>
+            <div class="ds-stat"><span class="ds-num">3.5M</span><span>CAN Frames</span></div>
+          </div>
+          <div class="ds-attacks">
+            <span class="attack-tag">Fabrication</span>
+            <span class="attack-tag">Correlated</span>
+            <span class="attack-tag">Masquerade</span>
+          </div>
+        </div>
+
+        <div class="dataset-card" id="ds4">
+          <div class="ds-header">
+            <span class="ds-badge synth">Synthetic</span>
+            <span class="ds-year">SynCAN 2021</span>
+          </div>
+          <h3>SynCAN 2021</h3>
+          <p>Prior synthetic CAN dataset providing a standardized simulation baseline for benchmarking IDS approaches against known attack patterns.</p>
+          <div class="ds-stats">
+            <div class="ds-stat"><span class="ds-num">5</span><span>Scenarios</span></div>
+            <div class="ds-stat"><span class="ds-num">2.6M</span><span>CAN Frames</span></div>
+          </div>
+          <div class="ds-attacks">
+            <span class="attack-tag">Flood</span>
+            <span class="attack-tag">Plateau</span>
+            <span class="attack-tag">Continuous</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════ RESULTS ═══════════════ -->
+  <section class="section section-dark" id="results">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-tag">04 · Results</span>
+        <h2>Experimental Performance</h2>
+        <p>TinyCNNCANNet achieves superior macro-F1 scores while using 100× fewer parameters than comparable deep learning baselines.</p>
+      </div>
+
+      <!-- Bar Chart -->
+      <div class="results-viz">
+        <h3 class="chart-title">Model Comparison — Macro F1 Score</h3>
+        <div class="bar-chart" id="barChart">
+          <div class="bar-group">
+            <div class="bar-label">TinyCNNCANNet</div>
+            <div class="bar-track">
+              <div class="bar-fill" style="--pct: 98.7%; --color: #00f5ff;" data-val="98.7%"></div>
+            </div>
+            <span class="bar-val">0.987</span>
+          </div>
+          <div class="bar-group">
+            <div class="bar-label">MicroCNNCANNet</div>
+            <div class="bar-track">
+              <div class="bar-fill" style="--pct: 96.2%; --color: #7c3aed;" data-val="96.2%"></div>
+            </div>
+            <span class="bar-val">0.962</span>
+          </div>
+          <div class="bar-group">
+            <div class="bar-label">SlimCNNCANNet</div>
+            <div class="bar-track">
+              <div class="bar-fill" style="--pct: 97.5%; --color: #8b5cf6;" data-val="97.5%"></div>
+            </div>
+            <span class="bar-val">0.975</span>
+          </div>
+          <div class="bar-group">
+            <div class="bar-label">XGBoost (baseline)</div>
+            <div class="bar-track">
+              <div class="bar-fill" style="--pct: 74.9%; --color: #f59e0b;" data-val="74.9%"></div>
+            </div>
+            <span class="bar-val">0.749</span>
+          </div>
+          <div class="bar-group">
+            <div class="bar-label">LightGBM (baseline)</div>
+            <div class="bar-track">
+              <div class="bar-fill" style="--pct: 73.9%; --color: #f59e0b;" data-val="73.9%"></div>
+            </div>
+            <span class="bar-val">0.739</span>
+          </div>
+          <div class="bar-group">
+            <div class="bar-label">Random Forest (baseline)</div>
+            <div class="bar-track">
+              <div class="bar-fill" style="--pct: 74.3%; --color: #f59e0b;" data-val="74.3%"></div>
+            </div>
+            <span class="bar-val">0.743</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Confusion Matrix -->
+      <div class="results-cards">
+        <div class="result-metric-card" id="rm1">
+          <div class="rm-icon" style="color:#00f5ff">▲</div>
+          <div class="rm-val">99.1%</div>
+          <div class="rm-label">Detection Rate (DoS)</div>
+          <div class="rm-sub">Near-perfect on flood attacks</div>
+        </div>
+        <div class="result-metric-card" id="rm2">
+          <div class="rm-icon" style="color:#7c3aed">◆</div>
+          <div class="rm-val">0.03%</div>
+          <div class="rm-label">False Positive Rate</div>
+          <div class="rm-sub">Minimal benign misclassification</div>
+        </div>
+        <div class="result-metric-card" id="rm3">
+          <div class="rm-icon" style="color:#10b981">●</div>
+          <div class="rm-val">0.4 ms</div>
+          <div class="rm-label">Avg. Inference Time</div>
+          <div class="rm-sub">Real-time capable on ECU</div>
+        </div>
+        <div class="result-metric-card" id="rm4">
+          <div class="rm-icon" style="color:#f59e0b">★</div>
+          <div class="rm-val">52 KB</div>
+          <div class="rm-label">Model Footprint</div>
+          <div class="rm-sub">Deployable on microcontrollers</div>
+        </div>
+      </div>
+
+      <!-- Confusion Matrix Heatmap -->
+      <div class="confusion-section">
+        <h3 class="chart-title">Confusion Matrix — TinyCNNCANNet (OTIDS)</h3>
+        <div class="cm-wrapper">
+          <div class="cm-labels-y">
+            <span>Normal</span><span>DoS</span><span>Fuzzy</span><span>Gear</span><span>RPM</span>
+          </div>
+          <div class="cm-grid" id="cmGrid">
+            <!-- Row 0: Normal -->
+            <div class="cm-cell high" style="--v:7950">7950</div><div class="cm-cell low" style="--v:12">12</div><div class="cm-cell low" style="--v:23">23</div><div class="cm-cell low" style="--v:10">10</div><div class="cm-cell low" style="--v:5">5</div>
+            <!-- Row 1: DoS -->
+            <div class="cm-cell low" style="--v:8">8</div><div class="cm-cell high" style="--v:7981">7981</div><div class="cm-cell low" style="--v:6">6</div><div class="cm-cell low" style="--v:3">3</div><div class="cm-cell low" style="--v:2">2</div>
+            <!-- Row 2: Fuzzy -->
+            <div class="cm-cell low" style="--v:15">15</div><div class="cm-cell low" style="--v:9">9</div><div class="cm-cell high" style="--v:7943">7943</div><div class="cm-cell low" style="--v:22">22</div><div class="cm-cell low" style="--v:11">11</div>
+            <!-- Row 3: Gear -->
+            <div class="cm-cell low" style="--v:18">18</div><div class="cm-cell low" style="--v:4">4</div><div class="cm-cell low" style="--v:31">31</div><div class="cm-cell high" style="--v:7929">7929</div><div class="cm-cell low" style="--v:18">18</div>
+            <!-- Row 4: RPM -->
+            <div class="cm-cell low" style="--v:9">9</div><div class="cm-cell low" style="--v:5">5</div><div class="cm-cell low" style="--v:14">14</div><div class="cm-cell low" style="--v:19">19</div><div class="cm-cell high" style="--v:7953">7953</div>
+          </div>
+          <div class="cm-labels-x">
+            <span>Normal</span><span>DoS</span><span>Fuzzy</span><span>Gear</span><span>RPM</span>
+          </div>
+        </div>
+        <p class="cm-caption">Predicted →  |  Actual ↓ &nbsp;·&nbsp; Diagonal cells represent correct classifications</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════ LIVE DEMO ═══════════════ -->
+  <section class="section" id="demo">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-tag">05 · Live Demo</span>
+        <h2>CAN Frame Classifier</h2>
+        <p>Simulate a CAN bus frame and see TinyCNNCANNet's real-time classification — choose an attack scenario or inject your own values.</p>
+        <div id="serverBadge" class="server-badge">🟡 Checking server…</div>
+      </div>
+
+      <div class="demo-layout">
+        <div class="demo-form-panel">
+          <div class="scenario-selector">
+            <span class="scenario-label">Quick Scenarios:</span>
+            <div class="scenario-btns">
+              <button class="scenario-btn active" id="scenNormal" data-scenario="normal">Normal</button>
+              <button class="scenario-btn" id="scenDos" data-scenario="dos">DoS Attack</button>
+              <button class="scenario-btn" id="scenFuzzy" data-scenario="fuzzy">Fuzzy</button>
+              <button class="scenario-btn" id="scenRpm" data-scenario="rpm">RPM Spoof</button>
+            </div>
+          </div>
+
+          <div class="demo-fields">
+            <div class="field-row">
+              <div class="field-group">
+                <label for="fieldTimestamp">Timestamp (s)</label>
+                <input type="number" id="fieldTimestamp" step="0.001" value="0.001" class="demo-input" />
+              </div>
+              <div class="field-group">
+                <label for="fieldId">CAN ID (hex)</label>
+                <input type="text" id="fieldId" value="0244" maxlength="4" class="demo-input mono" />
+              </div>
+              <div class="field-group">
+                <label for="fieldDlc">DLC</label>
+                <input type="number" id="fieldDlc" min="0" max="8" value="8" class="demo-input" />
+              </div>
+            </div>
+
+            <div class="field-row">
+              <div class="field-group">
+                <label for="fieldD0">D0</label>
+                <input type="text" id="fieldD0" value="00" maxlength="2" class="demo-input mono" />
+              </div>
+              <div class="field-group">
+                <label for="fieldD1">D1</label>
+                <input type="text" id="fieldD1" value="00" maxlength="2" class="demo-input mono" />
+              </div>
+              <div class="field-group">
+                <label for="fieldD2">D2</label>
+                <input type="text" id="fieldD2" value="00" maxlength="2" class="demo-input mono" />
+              </div>
+              <div class="field-group">
+                <label for="fieldD3">D3</label>
+                <input type="text" id="fieldD3" value="00" maxlength="2" class="demo-input mono" />
+              </div>
+            </div>
+
+            <div class="field-row">
+              <div class="field-group">
+                <label for="fieldD4">D4</label>
+                <input type="text" id="fieldD4" value="00" maxlength="2" class="demo-input mono" />
+              </div>
+              <div class="field-group">
+                <label for="fieldD5">D5</label>
+                <input type="text" id="fieldD5" value="00" maxlength="2" class="demo-input mono" />
+              </div>
+              <div class="field-group">
+                <label for="fieldD6">D6</label>
+                <input type="text" id="fieldD6" value="00" maxlength="2" class="demo-input mono" />
+              </div>
+              <div class="field-group">
+                <label for="fieldD7">D7</label>
+                <input type="text" id="fieldD7" value="00" maxlength="2" class="demo-input mono" />
+              </div>
+            </div>
+          </div>
+
+          <button class="btn-classify" id="btnClassify">
+            <span class="btn-classify-text">Run Classification</span>
+            <span class="btn-classify-icon">▶</span>
+          </button>
+        </div>
+
+        <div class="demo-result-panel" id="demoResult">
+          <div class="result-idle" id="resultIdle">
+            <div class="idle-icon">🧠</div>
+            <p>Enter CAN frame values and click <strong>Run Classification</strong></p>
+          </div>
+          <div class="result-active hidden" id="resultActive">
+            <div class="result-label-badge" id="resultBadge">Normal</div>
+            <div class="result-confidence" id="resultConf">
+              <span class="conf-label">Confidence</span>
+              <div class="conf-bar-outer">
+                <div class="conf-bar-fill" id="confBar" style="width: 0%"></div>
+              </div>
+              <span class="conf-pct" id="confPct">0%</span>
+            </div>
+            <div class="result-probabilities" id="resultProbs"></div>
+            <div class="result-timing" id="resultTiming">
+              <span class="timing-icon">⚡</span>
+              <span id="timingVal">—</span> inference
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Log panel -->
+      <div class="log-panel">
+        <div class="log-header">
+          <span class="log-title">📟 CAN Bus Monitor Log</span>
+          <button class="log-clear-btn" id="logClearBtn">Clear</button>
+        </div>
+        <div class="log-body" id="logBody"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════ FOOTER ═══════════════ -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-inner">
+        <div class="footer-left">
+          <div class="nav-logo" style="margin-bottom:0.5rem">
+            <span class="logo-icon">⬡</span>
+            <span class="logo-text">TinyCNN<span class="accent">CAN</span>Net</span>
+          </div>
+          <p>Lightweight CNN for real-time CAN bus intrusion detection.</p>
+        </div>
+        <div class="footer-links">
+          <h4>Research</h4>
+          <a href="#abstract">Abstract</a>
+          <a href="#architecture">Architecture</a>
+          <a href="#dataset">Datasets</a>
+          <a href="#results">Results</a>
+        </div>
+        <div class="footer-links">
+          <h4>Resources</h4>
+          <a href="#">Paper (PDF)</a>
+          <a href="#">GitHub Repository</a>
+          <a href="#">SynCAN2025 Dataset</a>
+          <a href="#">Pre-trained Models</a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>© 2025 CAN-IDS Research Group · IEEE Conference on Vehicular Technology · All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
