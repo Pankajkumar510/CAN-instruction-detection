@@ -1,15 +1,16 @@
-# Vercel only needs the frontend static files
-# Ignore all backend/Python files
+# Tell Vercel to ignore EVERYTHING except frontend/
+# The Flask API is deployed separately on Render.com
 
-# Python backend — handled by Render, not Vercel
+# Python source files
 server.py
-api/
 predict.py
 1.py
 requirements.txt
+
+# Model artifact (too large, not needed for frontend)
 artifacts/
 
-# Large data files
+# Data files
 DoS_dataset.csv
 Fuzzy_dataset.csv
 gear_dataset.csv
@@ -22,6 +23,9 @@ predictions_sample.csv
 __pycache__/
 *.py[cod]
 *.egg-info/
+
+# README (optional)
+README.md
 
 # OS / IDE
 .vscode/
