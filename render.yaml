@@ -1,0 +1,7 @@
+services:
+  - type: web
+    name: can-ids-backend
+    env: python
+    buildCommand: "pip install -r backend/backend-requirements.txt"
+    startCommand: "gunicorn backend.server:app"
+    plan: free
